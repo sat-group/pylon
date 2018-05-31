@@ -16,21 +16,21 @@ def genCNF(sudoku,given):
   f = open("sat.cnf","w")
   s = "p cnf 729 "
   s += str(11988+given)
-  f.write("p cnf 729 %d" % (11988+given))
-  for i in range(81):
+  f.write("p cnf 729 %d\n" % (11988+given))
+  for i in range(1, 82):
     if(sudoku[i] != 81):
       #calculate x/row
       x = (i // 9)
       #calculate y/col
       y = i % 9
       z = int(sudoku[i])
-      f.write("%d 0" % (x*9+y+z))
+      f.write("%d 0\n" % (x*9+y+z))
   #at most once
   for x in range(9):
     for y in range(9):
       for z in range(1,10):
         for i in range(z,9):
-          f.write("-%d -%d 0" % (x*9+y+z,x*9+y+i))
+          f.write("-%d -%d 0\n" % (x*9+y+z,x*9+y+i))
   #each number at least once in each row
   for y in range(9):
     for z in range(1,10):
@@ -38,7 +38,7 @@ def genCNF(sudoku,given):
       for x in range(9):
         c += str(x*9+y+z)
         c += " "
-      c += "0"
+      c += "0\n"
       f.write(c)
   #each number at least once in each column
   for x in range(9):
@@ -47,7 +47,7 @@ def genCNF(sudoku,given):
       for y in range(9):
         c += str(x*9+y+z)
         c += " "
-      c += "0"
+      c += "0\n"
       f.write(c)
   #each number at least once in each 3x3 sub-grid
   for z in range(1,10):
@@ -58,7 +58,7 @@ def genCNF(sudoku,given):
           for y in range(3):
             c += str((3*i+x)*9+(3*j+y)+z)
             c += " "
-    c += "0"
+    c += "0\n"
     f.write(c)
 
   subprocess.call(['java', '-jar', 'Jar\\ Files/org.sat4j.core.jar','sat.cnf'])
