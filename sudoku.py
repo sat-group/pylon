@@ -17,14 +17,19 @@ def genCNF(sudoku,given):
   s = "p cnf 729 "
   s += str(11988+given)
   f.write("p cnf 729 %d\n" % (11988+given))
-  for i in range(1, 82):
-    if(sudoku[i] != 81):
+  # Ruben: You should start at index 0 and go until index 81
+  for i in range(0, 81):
+    # Ruben: why is this check being done?
+    # Ruben: if the sudoku[i] stores the values of sudoku these will be between 0 and 9
+    if(sudoku[i] != 81): 
       #calculate x/row
       x = (i // 9)
       #calculate y/col
       y = i % 9
       z = int(sudoku[i])
-      f.write("%d 0\n" % (x*9+y+z))
+      # Ruben: if the value of the sudoku is 0 then we do not want to enforce any constraint
+      if z != 0:
+        f.write("%d 0\n" % (x*9+y+z))
   #at most once
   for x in range(9):
     for y in range(9):
@@ -61,7 +66,8 @@ def genCNF(sudoku,given):
     c += "0\n"
     f.write(c)
 
-  subprocess.call(['java', '-jar', 'Jar\\ Files/org.sat4j.core.jar','sat.cnf'])
+  # Ruben: changed the name of the directory
+  subprocess.call(['java', '-jar', 'jars/org.sat4j.core.jar','sat.cnf'])
 
   return
 
