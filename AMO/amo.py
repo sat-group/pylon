@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import math
 
 class AMO(object):
 
@@ -29,6 +30,10 @@ class AMO(object):
       return Pairwise()
     if type == "Sequential":
       return Sequential()
+    if type == "Binary":
+      return Binary()
+    if type == "Commander":
+      return Commander()
     assert 0, "Invalid encoding: " + type
  
   encoding = staticmethod(encoding)
@@ -62,6 +67,82 @@ class Sequential(AMO):
     formula.append(AMO.binary(-n,-(2*n-1)))
     #cnf += "-%d -%d 0\n"%(n,2*n-1)
     return AMO.toString(formula, variables)
+
+class Binary(AMO):
+  def build(self,n):
+    formula = []
+    log = int(math.ceil(math.log(n,2)))#auxilary
+    variables = n + log
+
+    for aux in range(1,log+1):
+    for i in range(1,n+1):
+      if(((i-1) % (2**aux)) < (2**(aux-1))):
+        formula.append(AMO.binary(-i,n+aux))
+        # cnf += "-%d %d 0\n"%(i,n+aux)
+      else:
+        formula.append(AMO.binary(-i,-(n+aux)))
+        # cnf += "-%d -%d 0\n"%(i,n+aux)
+    return AMO.toString(formula, variables)
+
+class Commander(AMO):
+  def build(self,n):
+    formula = []
+    def calcCommander(n):
+      if(n <= 3): return 1
+      l = math.floor(n / 2)
+      r = math.ceil(n / 2)
+      while(l > 3 || r > 3):
+        leftAcc = calcCommander(l)
+        rightAcc = calcCommander(r)
+        return leftAcc+rightAcc
+
+    def genSubOrds(n,cnt):
+      threeCount = n - (cnt * 2)
+      twoCount = cnt - threeCount
+      l = []
+      x = 1
+      for i in range(twoCount):
+        l.append((x,2))
+        x += 2
+      for i in range(threeCount):
+        l.append((x,3))
+        x += 3
+      return l
+
+    comVar = calcCommander(n)
+    variables = n + comVar
+    subOrds = genSubOrds(n,comVar)
+
+    c = n+1
+    for s in subOrds:
+      # at most one variable in group true
+      (start,size) = s # inclusive start
+      end = start+size # exclusive end
+      # TO-DO change to be able to call pairwise
+      for x in range(start,end):
+        for y in range(start+1,end):
+          formula.append(AMO.binary(-x,-y))
+
+      # if c true then at least one var true
+      if(size == 2):
+        formula.append(AMO.ternary(-c,start,start+1))
+      else: # size == 3
+        formula.append(AMO.quaternary(-c,start,start+1,start+2))
+
+      # if c false then all var false
+      for i in range(start,end):
+        formula.append(AMO.binary(c,-i))
+
+      #TO-DO implement recursive instead of pairwise
+      for x in range(1,c+1):
+        for y in range(x,c+1):
+          formula.append(AMO.binary(-x,-y))
+
+    return AMO.toString(formula, variables)
+
+
+
+
  
 def build(encoding, n):
   obj = AMO.encoding(encoding)
