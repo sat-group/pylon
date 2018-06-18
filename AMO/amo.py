@@ -34,6 +34,8 @@ class AMO(object):
       return Binary()
     if type == "Commander":
       return Commander()
+    if type == "Product":
+      return Product()
     assert 0, "Invalid encoding: " + type
  
   encoding = staticmethod(encoding)
@@ -75,27 +77,26 @@ class Binary(AMO):
     variables = n + log
 
     for aux in range(1,log+1):
-    for i in range(1,n+1):
-      if(((i-1) % (2**aux)) < (2**(aux-1))):
-        formula.append(AMO.binary(-i,n+aux))
-        # cnf += "-%d %d 0\n"%(i,n+aux)
-      else:
-        formula.append(AMO.binary(-i,-(n+aux)))
-        # cnf += "-%d -%d 0\n"%(i,n+aux)
+      for i in range(1,n+1):
+        if(((i-1) % (2**aux)) < (2**(aux-1))):
+          formula.append(AMO.binary(-i,n+aux))
+          # cnf += "-%d %d 0\n"%(i,n+aux)
+        else:
+          formula.append(AMO.binary(-i,-(n+aux)))
+          # cnf += "-%d -%d 0\n"%(i,n+aux)
     return AMO.toString(formula, variables)
 
 class Commander(AMO):
-  def build(self,n):
+  def build(self, n):
     formula = []
     def calcCommander(n):
       if(n <= 3): return 1
       l = math.floor(n / 2)
       r = math.ceil(n / 2)
-      while(l > 3 || r > 3):
-        leftAcc = calcCommander(l)
-        rightAcc = calcCommander(r)
-        return leftAcc+rightAcc
-
+      leftAcc = calcCommander(l)
+      rightAcc = calcCommander(r)
+      return leftAcc+rightAcc
+      
     def genSubOrds(n,cnt):
       threeCount = n - (cnt * 2)
       twoCount = cnt - threeCount
@@ -109,8 +110,8 @@ class Commander(AMO):
         x += 3
       return l
 
-    comVar = calcCommander(n)
-    variables = n + comVar
+    comVar = int(calcCommander(n))
+    variables = int(n) + comVar
     subOrds = genSubOrds(n,comVar)
 
     c = n+1
@@ -120,12 +121,13 @@ class Commander(AMO):
       end = start+size # exclusive end
       # TO-DO change to be able to call pairwise
       for x in range(start,end):
-        for y in range(start+1,end):
+        for y in range(x+1,end):
           formula.append(AMO.binary(-x,-y))
 
       # if c true then at least one var true
       if(size == 2):
         formula.append(AMO.ternary(-c,start,start+1))
+        pass
       else: # size == 3
         formula.append(AMO.quaternary(-c,start,start+1,start+2))
 
@@ -135,12 +137,37 @@ class Commander(AMO):
 
       #TO-DO implement recursive instead of pairwise
       for x in range(1,c+1):
-        for y in range(x,c+1):
+        for y in range(x+1,c+1):
           formula.append(AMO.binary(-x,-y))
 
     return AMO.toString(formula, variables)
 
-
+class Product(AMO):
+  def build(self, n):
+    p = (math.ceil(math.sqrt(n)))
+    q = int(math.ceil(n/p))
+    p = int(p)
+   
+    formula = []
+    variables = n + p +q
+  
+    #pairwise p
+    for x in range(n+1,n+p+1):
+      for y in range(x+1,n+1+p):
+        formula.append(AMO.binary(-x,-y))
+    #pairwise q
+    for x in range(n+p+1,n+p+1+q):
+      for y in range(x+1,n+p+1+q):
+        formula.append(AMO.binary(-x,-y))
+    
+    x = 1 
+    for u in range(n+1,n+1+p):
+      for v in range(n+p+1,n+p+1+q):
+        if(x <= n): #account that u*v may be greater than x
+           formula.append(AMO.binary(-x,u))
+           formula.append(AMO.binary(-x,v))
+           x += 1
+    return AMO.toString(formula, variables)
 
 
  
