@@ -136,11 +136,15 @@ class Commander(AMO):
       # if c false then all var false
       for i in range(start,end):
         formula.append(AMO.binary(c,-i))
+      c += 1
 
-      #TO-DO implement recursive instead of pairwise
-      for x in range(1,c+1):
-        for y in range(x+1,c+1):
-          formula.append(AMO.binary(-x,-y))
+
+    # exactly on of c true
+    # TO-DO implement recursive instead of pairwise
+    for x in range(n+1,n+comVar+1):
+      for y in range(x+1,n+comVar+1):
+        formula.append(AMO.binary(-x,-y))
+
 
     return AMO.toString(formula, variables)
 
@@ -170,6 +174,37 @@ class Product(AMO):
            formula.append(AMO.binary(-x,v))
            x += 1
     return AMO.toString(formula, variables)
+
+class Bimander(AMO)
+  def build(self,n):
+    m = int(math.ceil(math.sqrt(n)))
+
+    formula = []
+    log = int(math.ceil(math.log(m,2)))#auxilary
+    variables = n + log
+
+    B = (n // m)
+    # A = B + 1
+    sizeA = n % (n // m)
+    sizeB = m - sizeB
+
+    l = []
+    x = 1
+    for i in range(sizeA):
+      l.append((x,B+1))
+      x += B+1
+    for i in range(sizeB):
+      l.append((x,B))
+      x += B
+
+    for s in l:
+      # at most one variable in group true
+      (start,size) = s # inclusive start
+      end = start+size # exclusive end
+      # TO-DO change to be able to call pairwise
+      for x in range(start,end):
+        for y in range(x+1,end):
+          formula.append(AMO.binary(-x,-y))
 
 
  
