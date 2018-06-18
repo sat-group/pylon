@@ -40,6 +40,8 @@ class AMO(object):
  
   encoding = staticmethod(encoding)
   binary = staticmethod(binary)
+  ternary = staticmethod(ternary)
+  quaternary = staticmethod(quaternary)
   toString = staticmethod(toString)
  
 class Pairwise(AMO):
