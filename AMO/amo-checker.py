@@ -2,7 +2,7 @@
 
 import sys, subprocess, amo, os
 
-encodings = ['Pairwise','Sequential','Binary','Commander']
+encodings = ['Pairwise','Sequential','Binary','Commander','Product','Bimander']
 if sys.argv[1] not in encodings:
 	print "Invalid encoding=",sys.argv[1]
 	sys.exit(0)
