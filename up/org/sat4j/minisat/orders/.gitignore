@@ -1,0 +1,16 @@
+/AbstractPhaserecordingSelectionStrategy.class
+/NegativeLiteralSelectionStrategy.class
+/PhaseCachingAutoEraseStrategy.class
+/PhaseInLastLearnedClauseSelectionStrategy.class
+/PositiveLiteralSelectionStrategy.class
+/PureOrder.class
+/RSATLastLearnedClausesPhaseSelectionStrategy.class
+/RSATPhaseSelectionStrategy.class
+/RandomLiteralSelectionStrategy.class
+/RandomWalkDecorator.class
+/SubsetVarOrder.class
+/TabuListDecorator.class
+/UserFixedPhaseSelectionStrategy.class
+/ValuedLit.class
+/VarOrderHeap.class
+/package-info.class
