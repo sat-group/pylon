@@ -17,6 +17,13 @@ class AMO(object):
     clause=str(a) + " " + str(b) + " " + str(c) + " " + str(e) + " 0"
     return clause   
 
+  def n_nary(vars):
+    clause = ""
+    for v in vars:
+      clause += str(v) + " "
+    clause += "0"
+    return clause
+
   def toString(formula, variables):
     res = ""
     res += "p cnf " + str(variables) + " " + str(len(formula)) + "\n"
@@ -38,12 +45,15 @@ class AMO(object):
       return Product()
     if type == "Bimander":
       return Bimander()
+    if type == "ModelBased":
+      return ModelBased()
     assert 0, "Invalid encoding: " + type
  
   encoding = staticmethod(encoding)
   binary = staticmethod(binary)
   ternary = staticmethod(ternary)
   quaternary = staticmethod(quaternary)
+  n_nary = staticmethod(n_nary)
   toString = staticmethod(toString)
  
 class Pairwise(AMO):
@@ -53,8 +63,7 @@ class Pairwise(AMO):
     for x in range(lo,hi+1):
       for y in range(x+1,hi+1):
         formula.append(AMO.binary(-x,-y))
-
-    return formula,variables
+    return (formula,variables)
  
 class Sequential(AMO):
   def build(self, formula,variables,lo,hi): 
@@ -227,8 +236,37 @@ class Bimander(AMO):
       g += 1
 
     return formula,variables
+class Totalizer(AMO):
+  def build(self, formula,variables,lo,hi):
 
+    return formula,variables
 
+class Ladder(AMO):
+  def build(self, formula,variables,lo,hi):
+
+    return formula,variables
+
+class ModelBased(AMO):
+  def build(self, formula,variables,lo,hi):
+    n = hi - lo + 1
+    variables += n + 1
+    for i in range(0,n+1):
+      vars = []
+      aux = n + i + 1
+      for j in range(1,n+1):
+        if(j == i):
+          # forward implication
+          formula.append(AMO.binary(-aux,j))
+          vars.append(-j)
+        else:
+          # forward implication
+          formula.append(AMO.binary(-aux,-j))
+          vars.append(j)
+      vars.append(aux)
+      # backwards implication
+      formula.append(AMO.n_nary(vars))
+
+    return formula,variables
  
 def build(encoding, n):
   obj = AMO.encoding(encoding)
