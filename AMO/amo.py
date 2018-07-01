@@ -276,7 +276,7 @@ def build(encoding, n):
 def main():
   obj = AMO.encoding(sys.argv[1])
   formula, variables = obj.build([],int(sys.argv[2]),1,int(sys.argv[2]))
-  print AMO.toString(formula,variables)
+  print AMO.toString(formula,variables),
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
