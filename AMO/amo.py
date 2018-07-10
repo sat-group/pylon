@@ -149,9 +149,9 @@ class Commander(AMO):
         formula.append(AMO.binary(c,-i))
       c += 1
     if (comVar > 2):
-      return self.build(formula,variables,comStart,comStart+comVar);
+      return self.build(formula,variables,comStart,comStart+comVar-1);
     
-    formula.append(AMO.binary(-comStart, -comStart+1));
+    formula.append(AMO.binary(-comStart, -(comStart+1)));
     return (formula,variables)
     # exactly on of c true
     # TO-DO implement recursive instead of pairwise
