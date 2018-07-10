@@ -167,6 +167,7 @@ class Commander(AMO):
 
 class Product(AMO):
   def build(self, formula,variables,lo,hi):
+    n = hi-lo+1
     p = (math.ceil(math.sqrt(n)))
     q = int(math.ceil(n/p))
     p = int(p)
@@ -227,6 +228,10 @@ class Bimander(AMO):
       # at most one variable in group true
       (start,size) = s # inclusive start
       end = start+size # exclusive end
+      # TO-DO change to be able to call pairwise
+      for x in range(start,end):
+        for y in range(x+1,end):
+          formula.append(AMO.binary(-x,-y))
       for x in range(start,end):
         for y in range(maxLen-1,-1,-1):
           if(b[y] == '0'):
