@@ -271,6 +271,11 @@ class ModelBased(AMO):
       # backwards implication
       formula.append(AMO.n_nary(vars))
 
+    vars = []
+    for i in range(hi+1,hi+n+2):
+      vars.append(i)
+    formula.append(AMO.n_nary(vars))
+
     return formula,variables
  
 def build(encoding, n):
