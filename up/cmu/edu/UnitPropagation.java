@@ -18,16 +18,15 @@ public class UnitPropagation {
 		ISolver solver = SolverFactory.newDefault();
 		solver.setTimeout(3600); // 1 hour timeout
 		Reader reader = new DimacsReader(solver);
-		if (args.length != 2) {
+		if (args.length != 1) {
 			System.out.println("Error: not enough parameters");
-			System.out.println("Usage: java -jar up.jar <filename:string> <fixpoint:{0,1}>");
+			System.out.println("Usage: java -jar up.jar <cnf-file:string> ");
 			System.exit(0);
 		}
 		
 		try {
 			IProblem problem = reader.parseInstance(args[0]);
-			Integer fixpoint = Integer.valueOf(args[1]);
-			problem.isSatisfiable(fixpoint == 1);
+			problem.isSatisfiable(true);
 		} catch (FileNotFoundException e) {
 			System.out.println("Exception" + e);
 		} catch (ParseFormatException e) {

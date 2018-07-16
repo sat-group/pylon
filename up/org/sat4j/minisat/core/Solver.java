@@ -37,6 +37,7 @@ import static org.sat4j.core.LiteralsUtils.var;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.security.cert.CertPathValidatorException.Reason;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1039,11 +1040,12 @@ public class Solver<D extends DataStructureFactory> implements ISolverService,
 
     private final IVec<Propagatable> watched = new Vec<Propagatable>();
         
-    public final IVecInt propagateLit(int l, boolean positive, boolean fixpoint) {
+    public final void propagateLit(int l, boolean positive, IVecInt literals, IVecInt distance) {
     	
     	assert (decisionLevel() == 0);
     	
-    	IVecInt result = new VecInt();
+    	literals.clear();
+    	distance.clear();
     	IVecInt ltrail = this.trail;
         SolverStats lstats = this.stats;
         IOrder lorder = this.order;
@@ -1058,28 +1060,38 @@ public class Solver<D extends DataStructureFactory> implements ISolverService,
     	if (!positive) v = l << 1 ^ 1; // negative literal
         this.slistener.assuming(toDimacs(v));
         boolean ret = assume(v);
-        if (!ret) return result;
+        if (!ret) return;
         
-        int pos_initial = ltrail.size();
         this.slistener.beginLoop();
+        int w = 1;
+        HashMap<Integer,Integer> var2distance = new HashMap<>();
+        var2distance.put(l, 0);
+        int last = ltrail.size();
         
         while (this.qhead < ltrail.size()) {
+        	last = ltrail.size();
         	int p = ltrail.get(this.qhead++);
         	lslistener.propagating(toDimacs(p), null);
+        	if (var(p) != l) {
+        		literals.push(toDimacs(p));
+        		distance.push(var2distance.get(var(p)));
+        	}
             lorder.assignLiteral(p);
             Constr confl = reduceClausesForFalsifiedLiteral(p);
             if (confl != null) {
             	upConflict = true;
             }
-            if (!fixpoint) break;
-        }
-        if (!upConflict) {
-        	for (int i = pos_initial; i < ltrail.size(); i++) {
-            	result.push(toDimacs(ltrail.get(i)));
+            
+            for (int i = last; i < ltrail.size(); i++) {
+            	var2distance.put(var(ltrail.get(i)),var2distance.get(var(p))+1);
             }
+            
+        }
+        if (upConflict) {
+        	literals.clear();
+        	distance.clear();
         }
         cancelUntil(0);
-    	return result;
     }
 
     /**
@@ -1656,13 +1668,15 @@ public class Solver<D extends DataStructureFactory> implements ISolverService,
         
 		for (int z = 0; z <= 1; z++) {
 			for (int i = 0; i < nVars(); i++) {
-				IVecInt res = propagateLit(i + 1, z == 1, global);
+				IVecInt literals = new VecInt();
+				IVecInt distance = new VecInt();
+				propagateLit(i + 1, z == 1, literals, distance);
 				if (upConflict) {
 					System.out.println((i + 1) + "," + (-(i + 1)));
 					;
 				} else {
-					for (int j = 0; j < res.size(); j++) {
-						System.out.println((i + 1) + "," + (res.get(j)));
+					for (int j = 0; j < literals.size(); j++) {
+						System.out.println((i + 1) + "," + (literals.get(j)) + "," + distance.get(j));
 					}
 				}
 			}

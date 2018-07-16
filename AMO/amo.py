@@ -243,6 +243,27 @@ class Bimander(AMO):
     return formula,variables
 class Totalizer(AMO):
   def build(self, formula,variables,lo,hi):
+    maxVar = hi
+
+    mid = (lo + hi) // 2
+
+    def totRec(lo,hi):
+      if(hi - lo == 1){
+        # couple
+        merge(lo,hi)
+
+      }
+      elif(hi == lo){
+        # single
+        maxVar += 1
+      }
+      else{
+        mid = (lo+hi)//2
+        merge(totRec(lo,mid),totRec(mid+1,hi))
+      } 
+      return maxVar # variable repping group
+
+   totRec(lo,hi)
 
     return formula,variables
 
@@ -286,7 +307,7 @@ def build(encoding, n):
 def main():
   obj = AMO.encoding(sys.argv[1])
   formula, variables = obj.build([],int(sys.argv[2]),1,int(sys.argv[2]))
-  print AMO.toString(formula,variables)
+  print AMO.toString(formula,variables),
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
